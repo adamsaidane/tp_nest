@@ -22,7 +22,8 @@
     "typeorm:run-migrations": "npm run typeorm migration:run -- -d ./typeOrm.config.ts",
     "typeorm:generate": "npm run typeorm -- -d ./typeOrm.config.ts migration:generate ./migrations/%npm_config_name%",
     "typeorm:create-migration": "npm run typeorm -- migration:create ./migrations/%npm_config_name%",
-    "typeorm:revert-migration": "npm run typeorm -- -d ./typeOrm.config.ts migration:revert"
+    "typeorm:revert-migration": "npm run typeorm -- -d ./typeOrm.config.ts migration:revert",
+    "seed": "ts-node src/commands/cv.seeder.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -31,6 +32,9 @@
     "@nestjs/mapped-types": "*",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/typeorm": "^11.0.0",
+    "@ngneat/falso": "^8.0.2",
+    "@types/bcrypt": "^6.0.0",
+    "bcrypt": "^6.0.0",
     "mysql2": "^3.20.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
