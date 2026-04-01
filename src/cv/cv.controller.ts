@@ -1,34 +1,51 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    Post,
+    Body,
+    Patch,
+    Param,
+    Delete,
+    ParseIntPipe,
+    HttpStatus,
+    HttpCode,
+    Req
+} from '@nestjs/common';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
+import {UserService} from "../user/user.service";
 
 @Controller('cv')
 export class CvController {
-  constructor(private readonly cvService: CvService) {}
+    constructor(private readonly cvService: CvService) {}
 
-  @Post()
-  create(@Body() createCvDto: CreateCvDto) {
-    return this.cvService.create(createCvDto);
-  }
+    @Post('create')
+    create(@Body() createCvDto: CreateCvDto) {
+        return this.cvService.create(createCvDto);
+    }
 
-  @Get()
-  findAll() {
-    return this.cvService.findAll();
-  }
+    @Get('all')
+    findAll() {
+        return this.cvService.findAll();
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cvService.findOne(+id);
-  }
+    @Get('view/:id')
+    findOne(@Param('id', ParseIntPipe) id: number) {
+        return this.cvService.findOne(id);
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCvDto: UpdateCvDto) {
-    return this.cvService.update(+id, updateCvDto);
-  }
+    @Patch('update/:id')
+    update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() updateCvDto: UpdateCvDto,
+    ) {
+        return this.cvService.update(id, updateCvDto);
+    }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cvService.remove(+id);
-  }
+    @Delete('delete/:id')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    remove(@Param('id', ParseIntPipe) id: number) {
+        return this.cvService.remove(id);
+    }
 }

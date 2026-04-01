@@ -2,6 +2,8 @@
 import { Cv } from './src/cv/entities/cv.entity';
 import {Skill} from "./src/skill/entities/skill.entity";
 import {User} from "./src/user/entities/user.entity";
+import * as dotenv from 'dotenv';
+dotenv.config();
 export default new DataSource({
     type: 'mysql',
     host: process.env.DB_HOST || 'localhost',

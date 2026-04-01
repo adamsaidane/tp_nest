@@ -7,6 +7,8 @@ import { SkillModule } from './skill/skill.module';
 import {Cv} from "./cv/entities/cv.entity";
 import {Skill} from "./skill/entities/skill.entity";
 import {User} from "./user/entities/user.entity";
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Module({
     imports: [
@@ -21,7 +23,6 @@ import {User} from "./user/entities/user.entity";
             password: process.env.DB_PASSWORD || '',
             database: process.env.DB_DATABASE || 'cv_db',
             entities: [Cv, Skill, User],
-            migrations: ['migrations/*.ts'],
         }),
         CvModule,
         UserModule,
