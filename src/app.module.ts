@@ -11,22 +11,23 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-        }),
-        TypeOrmModule.forRoot({
-            type: 'mysql',
-            host: process.env.DB_HOST || 'localhost',
-            port: 3306,
-            username: process.env.DB_USERNAME || 'root',
-            password: process.env.DB_PASSWORD || '',
-            database: process.env.DB_DATABASE || 'cv_db',
-            entities: [Cv, Skill, User],
-        }),
-        CvModule,
-        UserModule,
-        SkillModule,
-    ],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: process.env.DB_HOST || 'localhost',
+      port: 3307,
+      username: process.env.DB_USERNAME || 'root',
+      password: process.env.DB_PASSWORD || '',
+      database: process.env.DB_DATABASE || 'cv_db',
+      entities: [Cv, Skill, User],
+      synchronize: true,
+    }),
+    CvModule,
+    UserModule,
+    SkillModule,
+  ],
 })
 export class AppModule {}

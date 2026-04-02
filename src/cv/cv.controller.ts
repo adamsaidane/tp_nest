@@ -1,51 +1,72 @@
 import {
-    Controller,
-    Get,
-    Post,
-    Body,
-    Patch,
-    Param,
-    Delete,
-    ParseIntPipe,
-    HttpStatus,
-    HttpCode,
-    Req
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  Req,
+  ForbiddenException,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
-import {UserService} from "../user/user.service";
+import { UserService } from '../user/user.service';
 
-@Controller('cv')
+@Controller('cvs')
 export class CvController {
-    constructor(private readonly cvService: CvService) {}
+  constructor(
+    private readonly cvService: CvService,
+    private readonly userService: UserService,
+  ) {}
 
-    @Post('create')
-    create(@Body() createCvDto: CreateCvDto) {
-        return this.cvService.create(createCvDto);
+  @Post()
+  async create(@Body() createCvDto: CreateCvDto, @Req() req: any) {
+    const user = await this.userService.findOne(req.userId);
+    if (!user) {
+      throw new ForbiddenException('User not found');
     }
+    return this.cvService.create(createCvDto, user);
+  }
 
-    @Get('all')
-    findAll() {
-        return this.cvService.findAll();
-    }
+  @Get()
+  findAll() {
+    return this.cvService.findAll();
+  }
 
-    @Get('view/:id')
-    findOne(@Param('id', ParseIntPipe) id: number) {
-        return this.cvService.findOne(id);
-    }
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.cvService.findOne(id);
+  }
 
-    @Patch('update/:id')
-    update(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() updateCvDto: UpdateCvDto,
-    ) {
-        return this.cvService.update(id, updateCvDto);
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateCvDto: UpdateCvDto,
+    @Req() req: any,
+  ) {
+    const cv = await this.cvService.findOne(id);
+    if (cv.user.id !== req.userId) {
+      throw new ForbiddenException(
+        'Vous ne pouvez modifier que vos propres CVs',
+      );
     }
+    return this.cvService.update(id, updateCvDto);
+  }
 
-    @Delete('delete/:id')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    remove(@Param('id', ParseIntPipe) id: number) {
-        return this.cvService.remove(id);
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const cv = await this.cvService.findOne(id);
+    if (cv.user.id !== req.userId) {
+      throw new ForbiddenException(
+        'Vous ne pouvez supprimer que vos propres CVs',
+      );
     }
+    return this.cvService.remove(id);
+  }
 }
