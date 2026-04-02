@@ -7,6 +7,7 @@ import { SkillModule } from './skill/skill.module';
 import {Cv} from "./cv/entities/cv.entity";
 import {Skill} from "./skill/entities/skill.entity";
 import {User} from "./user/entities/user.entity";
+import { AuthModule } from './auth/auth.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -28,6 +29,7 @@ dotenv.config();
     CvModule,
     UserModule,
     SkillModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
