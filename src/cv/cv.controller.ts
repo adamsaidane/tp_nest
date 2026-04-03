@@ -9,48 +9,54 @@ import {
   ParseIntPipe,
   HttpCode,
   HttpStatus,
-  Req,
   ForbiddenException,
+  UseGuards,
 } from '@nestjs/common';
 import { CvService } from './cv.service';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
-import { UserService } from '../user/user.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { User } from '../user/entities/user.entity';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import {ApiBearerAuth} from "@nestjs/swagger";
 
 @Controller('cvs')
 export class CvController {
-  constructor(
-    private readonly cvService: CvService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly cvService: CvService) {}
 
-  @Post()
-  async create(@Body() createCvDto: CreateCvDto, @Req() req: any) {
-    const user = await this.userService.findOne(req.userId);
-    if (!user) {
-      throw new ForbiddenException('User not found');
-    }
+  @Post('create')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  create(@Body() createCvDto: CreateCvDto, @CurrentUser() user: User) {
     return this.cvService.create(createCvDto, user);
   }
 
-  @Get()
-  findAll() {
-    return this.cvService.findAll();
+  @Get('all')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  findAll(@CurrentUser() user: User) {
+    return this.cvService.findAll(user);
   }
 
-  @Get(':id')
+  @Get('view/:id')
+  @ApiBearerAuth()
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.cvService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCvDto: UpdateCvDto,
-    @Req() req: any,
+    @CurrentUser() user: User,
   ) {
     const cv = await this.cvService.findOne(id);
-    if (cv.user.id !== req.userId) {
+
+    if (user.role !== 'admin' && cv.user.id !== user.id) {
       throw new ForbiddenException(
         'Vous ne pouvez modifier que vos propres CVs',
       );
@@ -58,15 +64,12 @@ export class CvController {
     return this.cvService.update(id, updateCvDto);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
-    const cv = await this.cvService.findOne(id);
-    if (cv.user.id !== req.userId) {
-      throw new ForbiddenException(
-        'Vous ne pouvez supprimer que vos propres CVs',
-      );
-    }
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
+  @Roles('admin')
+  async remove(@Param('id', ParseIntPipe) id: number) {
     return this.cvService.remove(id);
   }
 }

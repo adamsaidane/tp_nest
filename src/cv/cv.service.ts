@@ -38,8 +38,15 @@ export class CvService {
     return this.cvRepository.save(cv);
   }
 
-  async findAll(): Promise<Cv[]> {
-    return this.cvRepository.find({ relations: ['user', 'skills'] });
+  async findAll(user?: User): Promise<Cv[]> {
+    if (!user || user.role === 'admin') {
+      return this.cvRepository.find({ relations: ['user', 'skills'] });
+    }
+
+    return this.cvRepository.find({
+      where: { user: { id: user.id } },
+      relations: ['user', 'skills'],
+    });
   }
 
   async findOne(id: number): Promise<Cv> {
@@ -57,14 +64,6 @@ export class CvService {
 
   async update(id: number, updateCvDto: UpdateCvDto): Promise<Cv> {
     const cv = await this.findOne(id);
-
-    if (updateCvDto.userId) {
-      const user = await this.userRepository.findOne({
-        where: { id: updateCvDto.userId },
-      });
-      if (!user) throw new NotFoundException('User not found');
-      cv.user = user;
-    }
 
     if (updateCvDto.skillIds) {
       const skills = await this.skillRepository.find({

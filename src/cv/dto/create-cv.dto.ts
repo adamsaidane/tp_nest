@@ -20,10 +20,6 @@ export class CreateCvDto {
 
     @IsString()
     path: string;
-
-    @IsNumber()
-    userId: number;
-
     @IsArray()
     @IsNumber({}, { each: true })
     skillIds: number[];

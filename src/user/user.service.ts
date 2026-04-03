@@ -40,6 +40,14 @@ export class UserService {
   async seedUsers(count: number = 10): Promise<User[]> {
     const users: User[] = [];
     const hashedPassword = await bcrypt.hash('password123', 10);
+    
+    const admin = this.userRepository.create({
+        username: 'admin',
+        email: 'admin@example.com',
+        password: hashedPassword,
+        role: 'admin',
+    });
+    users.push(await this.userRepository.save(admin));
 
     for (let i = 0; i < count; i++) {
       const fakeUser = randUser();
