@@ -24,7 +24,6 @@ dotenv.config();
       password: process.env.DB_PASSWORD || 'password',
       database: process.env.DB_DATABASE || 'cv_db',
       entities: [Cv, Skill, User],
-      synchronize: true,
     }),
     CvModule,
     UserModule,

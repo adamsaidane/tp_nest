@@ -20,30 +20,35 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../user/entities/user.entity';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import {ApiBearerAuth} from "@nestjs/swagger";
 
 @Controller('cvs')
 export class CvController {
   constructor(private readonly cvService: CvService) {}
 
-  @Post()
+  @Post('create')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   create(@Body() createCvDto: CreateCvDto, @CurrentUser() user: User) {
     return this.cvService.create(createCvDto, user);
   }
 
-  @Get()
+  @Get('all')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   findAll(@CurrentUser() user: User) {
     return this.cvService.findAll(user);
   }
 
-  @Get(':id')
+  @Get('view/:id')
+  @ApiBearerAuth()
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.cvService.findOne(id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCvDto: UpdateCvDto,
@@ -59,9 +64,10 @@ export class CvController {
     return this.cvService.update(id, updateCvDto);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth()
   @Roles('admin')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.cvService.remove(id);
