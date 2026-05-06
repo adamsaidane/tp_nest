@@ -12,6 +12,7 @@ import {User} from "./user/entities/user.entity";
 import { AuthModule } from './auth/auth.module';
 import { CvLogModule } from './cv-log/cv-log.module';
 import { CvLog } from './cv-log/entities/cv-log.entity';
+import { SseModule } from './sse/sse.module';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -34,6 +35,7 @@ dotenv.config();
     SkillModule,
     AuthModule,
     CvLogModule,
+    SseModule,
   ],
 })
 export class AppModule {}

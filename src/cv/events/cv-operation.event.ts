@@ -1,5 +1,4 @@
-﻿// src/cv/events/cv-operation.event.ts
-import { CvOperation } from '../../cv-log/entities/cv-log.entity';
+﻿import { CvOperation } from '../../cv-log/entities/cv-log.entity';
 import { User } from '../../user/entities/user.entity';
 
 export class CvOperationEvent {

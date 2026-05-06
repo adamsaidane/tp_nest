@@ -1,4 +1,3 @@
-// src/cv-log/cv-log.controller.ts
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { CvLogService } from './cv-log.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';

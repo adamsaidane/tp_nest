@@ -1,4 +1,3 @@
-// src/cv-log/cv-log.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CvLog } from './entities/cv-log.entity';

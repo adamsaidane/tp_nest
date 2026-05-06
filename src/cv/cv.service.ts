@@ -1,4 +1,3 @@
-// src/cv/cv.service.ts  (version modifiée)
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
