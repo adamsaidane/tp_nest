@@ -1,3 +1,4 @@
+// src/cv/cv.service.ts  (version modifiée)
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCvDto } from './dto/create-cv.dto';
 import { UpdateCvDto } from './dto/update-cv.dto';
@@ -7,16 +8,20 @@ import { Skill } from '../skill/entities/skill.entity';
 import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { randFullName, randJobTitle, randNumber } from '@ngneat/falso';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CvOperationEvent } from './events/cv-operation.event';
+import { CvOperation } from '../cv-log/entities/cv-log.entity';
 
 @Injectable()
 export class CvService {
   constructor(
-    @InjectRepository(Cv)
-    private cvRepository: Repository<Cv>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
-    @InjectRepository(Skill)
-    private skillRepository: Repository<Skill>,
+      @InjectRepository(Cv)
+      private cvRepository: Repository<Cv>,
+      @InjectRepository(User)
+      private userRepository: Repository<User>,
+      @InjectRepository(Skill)
+      private skillRepository: Repository<Skill>,
+      private eventEmitter: EventEmitter2,
   ) {}
 
   async create(createCvDto: CreateCvDto, user: User): Promise<Cv> {
@@ -25,17 +30,13 @@ export class CvService {
     });
 
     const cv = this.cvRepository.create({
-      name: createCvDto.name,
-      firstname: createCvDto.firstname,
-      age: createCvDto.age,
-      cin: createCvDto.cin,
-      job: createCvDto.job,
-      path: createCvDto.path,
+      ...createCvDto,
       user,
       skills,
     });
-
-    return this.cvRepository.save(cv);
+    const saved = await this.cvRepository.save(cv);
+    this.eventEmitter.emit('cv.operation', new CvOperationEvent(CvOperation.CREATE, saved.id, user));
+    return saved;
   }
 
   async findAll(user?: User): Promise<Cv[]> {
@@ -50,35 +51,28 @@ export class CvService {
   }
 
   async findOne(id: number): Promise<Cv> {
-    const cv = await this.cvRepository.findOne({
-      where: { id },
-      relations: ['user', 'skills'],
-    });
-
-    if (!cv) {
-      throw new NotFoundException(`CV with ID ${id} not found`);
-    }
-
+    const cv = await this.cvRepository.findOne({ where: { id }, relations: ['user', 'skills'] });
+    if (!cv) throw new NotFoundException(`CV with ID ${id} not found`);
     return cv;
   }
 
-  async update(id: number, updateCvDto: UpdateCvDto): Promise<Cv> {
+  async update(id: number, updateCvDto: UpdateCvDto, user: User): Promise<Cv> {
     const cv = await this.findOne(id);
 
     if (updateCvDto.skillIds) {
-      const skills = await this.skillRepository.find({
-        where: { id: In(updateCvDto.skillIds) },
-      });
-      cv.skills = skills;
+      cv.skills = await this.skillRepository.find({ where: { id: In(updateCvDto.skillIds) } });
     }
 
     Object.assign(cv, updateCvDto);
-    return this.cvRepository.save(cv);
+    const saved = await this.cvRepository.save(cv);
+    this.eventEmitter.emit('cv.operation', new CvOperationEvent(CvOperation.UPDATE, id, user));
+    return saved;
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, user: User): Promise<void> {
     const cv = await this.findOne(id);
     await this.cvRepository.remove(cv);
+    this.eventEmitter.emit('cv.operation', new CvOperationEvent(CvOperation.DELETE, id, user));
   }
 
   async seedCvs(

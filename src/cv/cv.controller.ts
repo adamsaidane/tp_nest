@@ -61,7 +61,7 @@ export class CvController {
         'Vous ne pouvez modifier que vos propres CVs',
       );
     }
-    return this.cvService.update(id, updateCvDto);
+    return this.cvService.update(id, updateCvDto, user);
   }
 
   @Delete('delete/:id')
@@ -69,7 +69,7 @@ export class CvController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiBearerAuth()
   @Roles('admin')
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.cvService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User,) {
+    return this.cvService.remove(id, user);
   }
 }
