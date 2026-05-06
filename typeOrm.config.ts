@@ -15,5 +15,5 @@ export default new DataSource({
     entities: [Cv, Skill, User],
     migrations: ['migrations/*.ts'],
 
-    synchronize: false,
+    synchronize: true,
 });
