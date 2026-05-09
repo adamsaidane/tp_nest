@@ -8,7 +8,12 @@ describe('CvLogController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CvLogController],
-      providers: [CvLogService],
+      providers: [
+        {
+          provide: CvLogService,
+          useValue: {},
+        },
+      ],
     }).compile();
 
     controller = module.get<CvLogController>(CvLogController);

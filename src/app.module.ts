@@ -15,6 +15,8 @@ import { CvLog } from './cv-log/entities/cv-log.entity';
 import { SseModule } from './sse/sse.module';
 import { ChatModule } from './chat/chat.module';
 import { Message } from './chat/entities/message.entity';
+import { WebhookModule } from './webhook/webhook.module';
+import { WebhookSubscription } from './webhook/entities/webhook-subscription.entity';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -29,7 +31,7 @@ dotenv.config();
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'cv_db',
-      entities: [Cv, Skill, User, CvLog, Message],
+      entities: [Cv, Skill, User, CvLog, Message, WebhookSubscription],
       synchronize: true,
     }),
     CvModule,
@@ -39,6 +41,7 @@ dotenv.config();
     CvLogModule,
     SseModule,
     ChatModule,
+    WebhookModule,
   ],
 })
 export class AppModule {}
